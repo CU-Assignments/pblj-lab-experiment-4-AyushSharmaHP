@@ -1,4 +1,117 @@
-Experiment 4.3: Ticket Booking System
+import java.util.*;
+
+class Card {
+    String suit;
+    String rank;
+
+    public Card(String rank, String suit) {
+        this.rank = rank;
+        this.suit = suit;
+    }
+
+    @Override
+    public String toString() {
+        return rank + " of " + suit;
+    }
+}
+
+class CardCollection {
+    private Map<String, List<Card>> cardMap;
+    private Set<String> cardSet;
+
+    public CardCollection() {
+        cardMap = new HashMap<>();
+        cardSet = new HashSet<>();
+    }
+
+    public void addCard(String rank, String suit) {
+        String cardKey = rank + " of " + suit;
+        if (!cardSet.add(cardKey)) {
+            System.out.println("Error: Card \"" + cardKey + "\" already exists.");
+            return;
+        }
+        
+        cardMap.computeIfAbsent(suit, k -> new ArrayList<>()).add(new Card(rank, suit));
+        System.out.println("Card added: " + cardKey);
+    }
+
+    public void findCardsBySuit(String suit) {
+        List<Card> cards = cardMap.getOrDefault(suit, Collections.emptyList());
+        if (cards.isEmpty()) {
+            System.out.println("No cards found for " + suit + ".");
+            return;
+        }
+        cards.forEach(System.out::println);
+    }
+
+    public void displayAllCards() {
+        if (cardSet.isEmpty()) {
+            System.out.println("No cards found.");
+            return;
+        }
+        
+        cardMap.values().stream()
+                .flatMap(List::stream)
+                .sorted(Comparator.comparing(c -> c.suit + c.rank))
+                .forEach(System.out::println);
+    }
+
+    public void removeCard(String rank, String suit) {
+        String cardKey = rank + " of " + suit;
+        if (!cardSet.remove(cardKey)) {
+            System.out.println("Error: Card \"" + cardKey + "\" does not exist.");
+            return;
+        }
+        
+        cardMap.getOrDefault(suit, Collections.emptyList()).removeIf(card -> card.rank.equals(rank));
+        cardMap.values().removeIf(List::isEmpty);
+        System.out.println("Card removed: " + cardKey);
+    }
+}
+
+public class CardCollectionSystem {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        CardCollection collection = new CardCollection();
+
+        while (true) {
+            System.out.println("\nChoose an option: \n1. Add Card \n2. Find Cards by Suit \n3. Display All Cards \n4. Remove Card \n5. Exit");
+            int choice = scanner.nextInt();
+            scanner.nextLine(); 
+
+            switch (choice) {
+                case 1:
+                    System.out.print("Enter rank: ");
+                    String rank = scanner.nextLine();
+                    System.out.print("Enter suit: ");
+                    String suit = scanner.nextLine();
+                    collection.addCard(rank, suit);
+                    break;
+                case 2:
+                    System.out.print("Enter suit to find: ");
+                    String searchSuit = scanner.nextLine();
+                    collection.findCardsBySuit(searchSuit);
+                    break;
+                case 3:
+                    collection.displayAllCards();
+                    break;
+                case 4:
+                    System.out.print("Enter rank to remove: ");
+                    String removeRank = scanner.nextLine();
+                    System.out.print("Enter suit to remove: ");
+                    String removeSuit = scanner.nextLine();
+                    collection.removeCard(removeRank, removeSuit);
+                    break;
+                case 5:
+                    System.out.println("Exiting...");
+                    scanner.close();
+                    return;
+                default:
+                    System.out.println("Invalid choice, try again.");
+            }
+        }
+    }
+}Experiment 4.3: Ticket Booking System
 
 This program simulates a ticket booking system where multiple users (threads) try to book seats at the same time. The key challenges addressed are:
 
